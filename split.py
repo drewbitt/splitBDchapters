@@ -36,11 +36,15 @@ def split_file(file):
                     else:
                         ex_time = line_time[1]
                         ex_time = datetime.datetime.strptime(ex_time, "%H:%M:%S.%f")
+                        # creates a datetime.timedelta when subtracting two datetime.time
                         ex_time = ex_time - initial_time
+
                     if isinstance(ex_time, datetime.time):
                         print(ex_time.strftime("%H:%M:%S.%f")[:-3])
                     else:
-                        print(str(ex_time)[:-3])
+                        # is timedelta
+                        if (str(ex_time)[-1] == "0"):
+                            print("0" + str(ex_time)[:-3])
                     # output_file.write(line_time[0]+"="+ex_time)
                 else:
                     output_file.write(line)

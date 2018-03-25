@@ -1,7 +1,7 @@
 import sys
 import datetime
 
-def split_file(file):
+def split_file(file, offset=0):
     with open(file) as f:
         content = f.readlines()
     # strip \n chars
@@ -16,7 +16,7 @@ def split_file(file):
 
         initial_time = datetime.time()
 
-        with open('chapters' + str(count+1) + '.txt', 'w') as output_file:
+        with open('chapters' + str(count+1+offset) + '.txt', 'w') as output_file:
             # loop over sliced list of lines
             for inner_count, line in enumerate(content[chapter_num*2:]):
                 count_lines = count_lines + 1
@@ -59,8 +59,9 @@ def split_file(file):
                 output_file.write("\n")
 
 
-# Define what each episodes last chapter is (need 0 and last chapter)
-# for my example, 0-4,5-9,10-15,16-18
-split = [0,4,9,15,18]
+split = sys.argv[1].split(',')
 
-split_file(sys.argv[-1])
+if len(sys.argv) == 3:
+    split_file(sys.argv[2],sys.argv[3])
+else:
+    split_file(sys.argv[2])

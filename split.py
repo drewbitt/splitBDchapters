@@ -59,9 +59,9 @@ def split_file(file, offset=0):
                 output_file.write("\n")
 
 
-split = sys.argv[1].split(',')
+split = [int(n) for n in sys.argv[1].split(',')]
 
-if len(sys.argv) == 3:
-    split_file(sys.argv[2],sys.argv[3])
+if len(sys.argv) == 4:
+    split_file(sys.argv[2],int(sys.argv[3]))
 else:
     split_file(sys.argv[2])

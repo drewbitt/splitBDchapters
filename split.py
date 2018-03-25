@@ -7,12 +7,11 @@ def split_file(file):
     # strip \n chars
     content = [x.strip() for x in content]
 
-    # keeps track of how many lines one by one are processed
+    # keeps track of how many lines are processed in total in loop
     count_lines = 0
 
     for count, chapter_num in enumerate(split):
-        # handling access out of bounds
-        if count== len(split)-1:
+        if count == len(split)-1:
             break
 
         initial_time = datetime.time()
@@ -29,6 +28,7 @@ def split_file(file):
                     line_time = line.split("=")
 
                     if inner_count == 0:
+                        # start with time of 00:00:00.000
                         ex_time = datetime.time()
                         # first time line = initial time to adjust by
                         initial_time = line_time[1]
@@ -39,17 +39,21 @@ def split_file(file):
                         # creates a datetime.timedelta when subtracting two datetime.time
                         ex_time = ex_time - initial_time
 
+                    # Have to print datetime.time differently than datetime.timedelta
                     if isinstance(ex_time, datetime.time):
-                        print(ex_time.strftime("%H:%M:%S.%f")[:-3])
+                        the_time = ex_time.strftime("%H:%M:%S.%f")[:-3]
+                        output_file.write(line_time[0]+"="+the_time)
                     else:
-                        # is timedelta
-                        if (str(ex_time)[-1] == "0"):
-                            print("0" + str(ex_time)[:-3])
-                    # output_file.write(line_time[0]+"="+ex_time)
+                        if str(ex_time)[-1] == "0":
+                            the_time = "0" + str(ex_time)[:-3]
+                        else:
+                            the_time = str(ex_time)[:-3]
+                        output_file.write(line_time[0]+"="+the_time)
+
                 else:
                     output_file.write(line)
 
-                # if line num = chapter number of end, break
+                # if line num = chapter number of end specified in split, break
                 if count_lines == split[count+1] * 2:
                     break
                 output_file.write("\n")

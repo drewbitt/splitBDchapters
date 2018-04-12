@@ -65,10 +65,10 @@ def split_file(file, offset=1):
                     break
                 output_file.write("\n")
 
-split = sys.argv[2].split(',')
 
-if len(sys.argv) == 3:
-    # pass filename and offset if length is 3
-    split_file(sys.argv[1],sys.argv[3])
+split = [int(n) for n in sys.argv[2].split(',')]
+
+if len(sys.argv) == 4:
+    split_file(sys.argv[2],int(sys.argv[3]))
 else:
     split_file(sys.argv[1])

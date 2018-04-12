@@ -1,7 +1,14 @@
 import sys
 import datetime
 
-def split_file(file, offset=0):
+'''USAGE
+python3 split.py filename list number
+filename: filename of the eac3to chapter file
+list: list of the chapters to split at in the format 0,5,10 where in this example it splits 0-5,6-10
+offset: optional. include what number to start at for chapter files. default 1
+'''
+
+def split_file(file, offset=1):
     with open(file) as f:
         content = f.readlines()
     # strip \n chars
@@ -16,7 +23,7 @@ def split_file(file, offset=0):
 
         initial_time = datetime.time()
 
-        with open('chapters' + str(count+1+offset) + '.txt', 'w') as output_file:
+        with open('chapters' + str(count+offset) + '.txt', 'w') as output_file:
             # loop over sliced list of lines
             for inner_count, line in enumerate(content[chapter_num*2:]):
                 count_lines = count_lines + 1
@@ -58,10 +65,10 @@ def split_file(file, offset=0):
                     break
                 output_file.write("\n")
 
-
-split = sys.argv[1].split(',')
+split = sys.argv[2].split(',')
 
 if len(sys.argv) == 3:
-    split_file(sys.argv[2],sys.argv[3])
+    # pass filename and offset if length is 3
+    split_file(sys.argv[1],sys.argv[3])
 else:
-    split_file(sys.argv[2])
+    split_file(sys.argv[1])

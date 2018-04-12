@@ -69,6 +69,6 @@ def split_file(file, offset=1):
 split = [int(n) for n in sys.argv[2].split(',')]
 
 if len(sys.argv) == 4:
-    split_file(sys.argv[2],int(sys.argv[3]))
+    split_file(sys.argv[1],int(sys.argv[3]))
 else:
     split_file(sys.argv[1])

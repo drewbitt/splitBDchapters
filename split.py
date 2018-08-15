@@ -52,7 +52,11 @@ def split_file(file, offset, names, only_names):
                     if count > 0:
                         begin_line = "CHAPTER" + chap_num
                     else:
-                        begin_line = line
+                        # need to get rid of any existing chapter titles if --title
+                        if names:
+                            begin_line = line if inner_count % 2 == 0 else line.split("=")[0] + "="
+                        else:
+                            begin_line = line
 
                     # Adjust time for every other line
                     if inner_count % 2 == 0:

@@ -1,10 +1,13 @@
-from glob import glob
-from ffprobe3 import FFProbe
+import argparse
 import datetime
 import math
-import sys
 import os
-import argparse
+import sys
+from glob import glob
+
+from ffprobe3 import FFProbe
+
+from split import split_file
 
 
 def split_by_video(file, names, videos, offset=1, file_name_format="chapters%n"):
@@ -18,7 +21,10 @@ def split_by_video(file, names, videos, offset=1, file_name_format="chapters%n")
     for filename in videos:
         video_lengths.append(getLength(filename))
 
-    parse_file(file, video_lengths)
+    indexes = parse_file(file, video_lengths)
+    # Split!
+    print("Splitting files")
+    split_file(file, names, False, indexes, offset, file_name_format)
 
 
 def getLength(filename):
@@ -36,17 +42,17 @@ def convert_times(times):
         frac, whole = math.modf(mth)
 
         # New format - minutes.seconds.microseconds
-        new_times.append(str(int(whole)) + "." + str(int(frac*60)) + "." + big_seconds[1])
+        new_times.append(str(int(whole)) + "." + str(int(frac * 60)) + "." + big_seconds[1])
     return new_times
 
 
 def parse_file(file, times):
     """ Read chapter file and find the time for each episode in successive order. Returns index to split at"""
 
-    total_time = datetime.timedelta(0,0)
+    total_time = datetime.timedelta(0, 0)
     indexes = []
     time_arr_index = 0
-    first = None
+    first = False
 
     times = convert_times(times)
     # convert times array to datetime objects
@@ -60,11 +66,6 @@ def parse_file(file, times):
     content = [x.strip() for x in content]
 
     for count, line in enumerate(content):
-        if first == None:
-            if count == 0:
-                first = 0
-            else:
-                first = math.ceil((count+1)/2)
 
         # Get time and compare to time in times[]
         if count % 2 == 0:
@@ -74,20 +75,34 @@ def parse_file(file, times):
             dt_line = datetime.datetime.strptime(line_time[1], "%H:%M:%S.%f")
 
             # Compare time to time in times[time_arr_index] - within two seconds. Duration may need to change.
-            if dt_line - datetime.timedelta(0, 2) <= times[time_arr_index] + total_time <= dt_line + datetime.timedelta(0, 2):
-                total_time += times[time_arr_index]
+            if dt_line - datetime.timedelta(0, 2) <= times[time_arr_index] + total_time <= dt_line + datetime.timedelta(
+                    0, 2):
+                # Since I didn't use timedeltas for dates in the first place like I should have, will convert to timedelta
+                # and then add to total_time so that I can add datetimes (impossible without using timedeltas)
+                ti = times[time_arr_index]
+                total_time += datetime.timedelta(hours=ti.hour, minutes=ti.minute, seconds=ti.second,
+                                                 microseconds=ti.microsecond)
+
                 time_arr_index += 1
+                if first:
+                    indexes.append(math.ceil((count + 1) / 2))
+                else:
+                    indexes.extend([0, math.ceil((count + 1) / 2)])
+                first = True
 
-                indexes.extend([first, math.ceil((count+1)/2)])
-                first = None
+        if time_arr_index + 1 > len(times):
+            # we done, add indexes for whats remaining
+            if count + 2 < len(content):
+                indexes.append(int(len(content) / 2))
+            print("\nUsing indexes {}".format(indexes))
+            break
 
-            if time_arr_index+1 > len(times):
-                # we done, add indexes for whats remaining
-                if count+2 < len(content):
-                    indexes.extend([math.ceil((count+1)/2)+1, int(len(content)/2)])
-                    break
+        # If this is true, is bad, exit
+        if count + 1 == len(content) and time_arr_index + 1 <= len(times):
+            print("\nDid not find a matching chapter for time {0} (video file number {1}). Exiting".format(
+                times[time_arr_index], time_arr_index + 1))
+            sys.exit(1)
 
-    print(indexes)
     return indexes
 
 

@@ -74,9 +74,9 @@ def parse_file(file, times):
 
             dt_line = datetime.datetime.strptime(line_time[1], "%H:%M:%S.%f")
 
-            # Compare time to time in times[time_arr_index] - within two seconds. Duration may need to change.
-            if dt_line - datetime.timedelta(0, 2) <= times[time_arr_index] + total_time <= dt_line + datetime.timedelta(
-                    0, 2):
+            # Compare time to time in times[time_arr_index]. Duration may need to change for range
+            if dt_line - datetime.timedelta(0, len(indexes) + 2) <= times[time_arr_index] + total_time <= dt_line + datetime.timedelta(
+                    0, len(indexes) + 2):
                 # Since I didn't use timedeltas for dates in the first place like I should have, will convert to timedelta
                 # and then add to total_time so that I can add datetimes (impossible without using timedeltas)
                 ti = times[time_arr_index]

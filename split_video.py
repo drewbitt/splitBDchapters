@@ -5,6 +5,7 @@ import os
 import sys
 from glob import glob
 
+# github.com/nickerokhin/ffprobe3 gives mkv support with TAG:DURATION
 from ffprobe3 import FFProbe
 
 from split import split_file
@@ -29,7 +30,7 @@ def split_by_video(file, names, videos, offset=1, file_name_format="chapters%n")
 
 def getLength(filename):
     """Returns length of file to the microsecond using ffprobe"""
-    return FFProbe(filename).streams[0].duration
+    return FFProbe(filename).streams[0].duration_seconds()
 
 
 def convert_times(times):
@@ -37,6 +38,7 @@ def convert_times(times):
     new_times = []
     for t in times:
         # Doing manual math to convert seconds above 60 to minutes and seconds. Probably could've been done with timedeltas
+        t = str(t)
         big_seconds = t.split(".")
         mth = int(big_seconds[0]) / 60
         frac, whole = math.modf(mth)
@@ -109,7 +111,7 @@ def parse_file(file, times):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Wrapper for splitting files based on video times")
     parser.add_argument('file', nargs=1)
-    parser.add_argument('--videos', '-i', nargs="*", help="Video files. Their lengths act as splitting indexes")
+    parser.add_argument('--video', '-i', nargs="*", help="Video files. Their lengths act as splitting indexes")
     parser.add_argument('--offset', '-o', type=int, default=1, help="Number to start file numbering at. Default 1")
     parser.add_argument('--file-name', '-f', dest="file_name", default="chapters%n",
                         help="Name format for generated files. Use %n to specify number location. Defaults to chapters%n")
@@ -117,4 +119,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    split_by_video(args.file[0], args.titles, args.videos, args.offset, args.file_name)
+    split_by_video(args.file[0], args.titles, args.video, args.offset, args.file_name)

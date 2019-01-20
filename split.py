@@ -117,6 +117,7 @@ if __name__ == "__main__":
                         help="Set for only doing generic chapter titles. Ignores all other arguments and edits the same file as given.")
     args = parser.parse_args()
 
+    split = None
     if not args.only_titles:
         split = [int(n) for n in args.indexes.split(',')]
     # don't really gotta pass any of these with this scope

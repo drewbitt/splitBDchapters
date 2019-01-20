@@ -41,7 +41,7 @@ def split_file(file, names, only_names, rsplit, offset=1, file_name_format="chap
 
             initial_time = datetime.time()
 
-            file_name = file_name_format.replace("%n", str(count + offset).zfill(2))
+            file_name = file_name_format.replace("%n", str(count + offset).zfill(3))
             with open(file_name + '.txt', 'w') as output_file:
                 # loop over sliced list of lines
                 for inner_count, line in enumerate(content[chapter_num * 2:]):
